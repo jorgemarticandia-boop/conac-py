@@ -161,8 +161,9 @@ const TIPOS={coordinador:'Informe del Coordinador (semanal)',tesorero:'Informe d
 const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const yt=u=>{const m=/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/.exec(u||'');return m?m[1]:''};
 const okUrl=u=>/^https:\/\//.test(u||'');
+const prev=u=>{u=String(u||'');let m=/^https:\/\/drive\.google\.com\/file\/d\/([\w-]+)/.exec(u)||/^https:\/\/drive\.google\.com\/open\?(?:[^#]*&)?id=([\w-]+)/.exec(u);if(m)return'https://drive.google.com/file/d/'+m[1]+'/preview';m=/^https:\/\/docs\.google\.com\/(document|presentation)\/d\/([\w-]+)/.exec(u);if(m)return'https://docs.google.com/'+m[1]+'/d/'+m[2]+'/preview';return u};
 const fmt=d=>d?new Date(d+'T12:00').toLocaleDateString('es-PY',{day:'numeric',month:'long',year:'numeric'}):'';
-const card=p=>`<article class="post"><small>${esc(TIPOS[p.type]||'')} · ${fmt(p.date)}</small><h4>${esc(p.title)}</h4>${p.text?`<p>${esc(p.text)}</p>`:''}${yt(p.video)?`<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${yt(p.video)}" allowfullscreen loading="lazy" title="Video"></iframe></div>`:''}${okUrl(p.link)?`<a class="form-link" href="${esc(p.link)}" target="_blank" rel="noopener">Ver documento</a>`:''}</article>`;
+const card=p=>`<article class="post"><small>${esc(TIPOS[p.type]||'')} · ${fmt(p.date)}</small><h4>${esc(p.title)}</h4>${p.text?`<p>${esc(p.text)}</p>`:''}${yt(p.video)?`<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${yt(p.video)}" allowfullscreen loading="lazy" title="Video"></iframe></div>`:''}${okUrl(p.link)?`<a class="form-link" href="${esc(prev(p.link))}" target="_blank" rel="noopener">Ver documento</a>`:''}</article>`;
 
 try{const s=await getDocs(query(collection(getFirestore(initializeApp(cfg)),"posts"),orderBy("date","desc"),limit(60)));const all=s.docs.map(d=>d.data());
 const sec=(h,t)=>{const l=all.filter(p=>t.includes(p.type));return l.length?`<h3 class="pubh">${h}</h3><div class="posts">${l.map(card).join("")}</div>`:""};
